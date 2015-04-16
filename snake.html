@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        body{
+
+        }
+
+        #game-container{
+            background-color: lightgrey;
+            width:  80vh;
+            height: 80vh;
+            border: 1px solid black;
+        }
+
+        #score-area{
+            color:#000000;
+            font: 100 1em 'Helvetica Neue';
+        }
+
+    </style>
+
+</head>
+<body>
+    <h3>Snake game</h3>
+    <p><strong> Score :</strong><span id="score-area"></span> </p>
+
+    <canvas id="game-container"> </canvas>
+
+    <script>
+
+       var container = document.getElementById('game-container');
+       //get context for the canvas
+       var context = container.getContext('2d');
+       //setting the colors and area
+       context.fillStyle = 'lightgrey';
+       context.fillRect(0,0,container.width, container.height);
+
+       //keys
+       var KEY_LEFT = 37, KEY_RIGHT = 39, KEY_UP = 38, KEY_DOWN = 40;
+       var keys= [], speed = 3, score = 0, UP, DOWN, LEFT, RIGHT;
+
+       window.addEventListener('keydown', function(e){
+            keys[e.keyCode] = true;
+       });
+
+       window.addEventListener('keyup', function(e){
+           delete keys[e.keyCode];
+       });
+
+
+       var snake = {
+            x : 5, y : 5 , width :10 , height: 5, direction: null
+
+       };
+
+
+
+       var food ={
+           x: Math.round(Math.random() * (container.width - 10)),
+           y: Math.round(Math.random() * (container.height - 5)),
+           width: 10,
+           height: 5
+       };
+
+       function hasCollided(snake, food){ //the snake eating the food
+
+           //return (s.x > (f.x + f.width) && s.y > (f.y + f.height));
+           return !(snake.x > food.x + food.width ||
+           snake.width + snake.x < food.x ||
+           snake.y > food.y + food.height ||
+           snake.height + snake.y < food.y);
+
+       };
+
+       function eating(){
+           //snake has met and eaten the food
+           //set new x,y for the food
+           food.x = Math.round(Math.random() * (container.width - 10));
+           food.y = Math.round(Math.random() * (container.height - 5));
+           //increase score
+           score++;
+           //increase size of snake
+
+       };
+
+       function reset() {
+           if (confirm('Looks like you lost. Play again?') == true) {
+               //called upon snake death
+               score = 0;
+               //reset snake
+           }
+       };
+
+       function game(){
+           update();
+           render();
+       };
+
+       function update(){
+            //Movement keys
+            if(keys[KEY_DOWN]){
+                snake.y += speed; //moving down the y-axis
+            }
+
+           if(keys[KEY_UP]){
+               snake.y -= speed;
+           }
+
+           if(keys[KEY_LEFT]){
+               snake.x -= speed;
+           }
+
+           if(keys[KEY_RIGHT]){
+               snake.x += speed;
+           }
+
+           //play zone limit
+
+           if(snake.x < 0){
+               snake.x = 0; //snake moving out of containment-x;
+               //reset();
+           }
+
+           if(snake.y < 0){
+               snake.y = 0; //snake moving out of containment-y;
+               //reset();
+           }
+
+           if(snake.x >= container.width - snake.width){
+               snake.x = container.width - snake.width; //snake moving out of containment-x;
+               //reset();
+           }
+
+           if(snake.y >= container.height - snake.height){
+               snake.y = container.height - snake.height; //snake moving out of containment-y;
+               //reset();
+           }
+
+           //if snake has eaten the food
+
+           if(hasCollided(snake, food)){
+             console.log('Om nom nom');
+               eating();
+           }
+       }
+
+       function render(){
+            //clear trail
+            context.clearRect(0 , 0, container.width, container.height);
+            // render snake
+            context.fillStyle = 'black';
+            context.fillRect(snake.x, snake.y , snake.width, snake.height);
+            //render food
+            context.fillStyle = 'white';
+            context.fillRect(food.x, food.y , food.width, food.height);
+
+           //write score
+           //context.fillStyle = 'black';
+           //context.fillText(score, 10, 10);
+           document.getElementById('score-area').innerHTML = score;
+       }
+
+       //loop
+
+       setInterval(function(){
+           game()}, 1000/30); //30 frames per second;
+
+       /*game rules*/
+
+
+/*
+        var gameContainer = document.querySelector('.game-container');
+        var ht = gameContainer.clientHeight;
+        var wt = gameContainer.clientWidth;
+
+        //console.log (ht +'  ' +wt);
+        var KEY_LEFT = 37, KEY_RIGHT = 39, KEY_UP = 38, KEY_DOWN = 40; //DIRECTION key values
+        //to track user score
+        var USER_SCORE = 0;
+        var EMPTY = 0,
+            SNAKE = 1,
+            FOOD = 2;
+
+
+
+
+        //Container for the game
+        var container;
+
+        container = {
+            //container height and width known but have to be initialised
+            cwt : null,
+            cht : null,
+
+        };
+        //The snake object
+        var snake;
+
+        //1. has own direction
+        //2. has initial fixed length
+        //3. increases in size
+
+        snake = {
+            direction : null, length : null,
+            //Need to represent snake
+            initialize : function(){
+
+            },
+
+            grow : function(){
+
+            }
+
+        }
+
+        // Game rules
+       // 1. Make food appear randomly only in vacant positions on the grid(not where snake is present)
+       // 2. Depending on key press and snake's direction choose the movement
+       // 3. Snake size increases upon eating food.
+       // 4. If snake touches the boundaries, kill snake
+
+
+
+        //function to make food appear
+        function randomFood(){
+            var vacantSlot = [];
+
+            var foodx = Math.round(Math.random());//between 0 to client height
+            var foody = Math.round(Math.random());//between 0 to client width
+
+        };
+
+        //Event for detecting key down
+        function keyTester(){
+      //  document.getElementById("keyTest").style.backgroundColor="red";
+            console.log(window.event.keyCode);
+            switch(window.event.keyCode){
+                case 37:{
+                    alert("left");
+                    break;
+                }
+                case 38:{
+                    alert("up");
+                    break;
+                }
+                case 39:{
+                    alert("right");
+                    break;
+                }
+                case 40:{
+                    alert("down");
+                    break;
+                }
+                default:{
+                    alert("Not a direction key");
+                    break;
+                }
+            }
+        };*/
+    </script>
+</body>
+</html>
